@@ -1,0 +1,39 @@
+<div>
+  <div class="transactions-header">
+    <h2>Transaction History</h2>
+    <button class="btn secondary" (click)="loadTransactions()">Refresh</button>
+  </div>
+
+  <div *ngIf="loading" class="muted loading-state">Loading transactions...</div>
+  <div *ngIf="error" class="error-text error-state">{{ error }}</div>
+
+  <div *ngIf="!loading && transactions?.length; else empty">
+    <div class="card transactions-list">
+      <div *ngFor="let txn of transactions; let last = last" 
+           class="transaction-item"
+           [class.last]="last">
+        <div class="transaction-left">
+          <div class="transaction-icon" [class.credit]="txn.transaction_type === 'CREDIT'">
+            {{ txn.transaction_type === 'CREDIT' ? '+' : '-' }}
+          </div>
+          <div class="transaction-details">
+            <strong class="transaction-type">{{ txn.transaction_type }}</strong>
+            <div class="transaction-date">{{ txn.created_at | date:'short' }}</div>
+          </div>
+        </div>
+        <div class="transaction-right">
+          <strong class="transaction-amount" [class.credit]="txn.transaction_type === 'CREDIT'">
+            {{ (txn.transaction_type === 'CREDIT' ? '+' : '-') }}<span>{{ txn.amount | number:'1.2-2' }}</span>
+          </strong>
+          <div class="transaction-status">{{ txn.status }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #empty>
+    <div class="card empty-state">
+      <p class="muted">No transactions yet.</p>
+    </div>
+  </ng-template>
+</div>

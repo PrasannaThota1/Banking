@@ -1,0 +1,196 @@
+<div class="accounts-container">
+  <!-- Header Section -->
+  <div class="accounts-header">
+    <div class="header-content">
+      <h1>Your Accounts</h1>
+      <p class="header-subtitle">Manage and monitor all your accounts in one place</p>
+    </div>
+    <button class="btn btn-primary" (click)="openCreateForm()" [disabled]="loading">
+      <span class="btn-icon">+</span>
+      New Account
+    </button>
+  </div>
+
+  <!-- Search / Actions -->
+  <div class="accounts-actions" style="display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:1rem;">
+    <input type="search" placeholder="Search by account number or type" [(ngModel)]="searchTerm" name="search" class="search-input" />
+    <div style="display:flex;gap:0.5rem;">
+      <button class="btn btn-secondary" (click)="loadAccounts()">Refresh</button>
+    </div>
+  </div>
+
+  <!-- Create Account Form -->
+  <div *ngIf="showCreateForm" class="create-account-card">
+    <div class="form-header">
+      <h3>Create New Account</h3>
+      <button class="btn-close" (click)="closeCreateForm()">×</button>
+    </div>
+
+    <form #createForm="ngForm" (ngSubmit)="onCreateAccount(createForm)">
+      <div class="form-group">
+        <label>Account Type</label>
+        <div class="account-type-selector">
+          <div *ngFor="let type of accountTypes" 
+               class="type-option"
+               [class.selected]="newAccount.account_type === type"
+               (click)="newAccount.account_type = type">
+            <div class="type-icon">{{ getAccountIcon(type) }}</div>
+            <div class="type-name">{{ type }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-success" [disabled]="creating">
+          {{ creating ? 'Creating...' : 'Create Account' }}
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="closeCreateForm()">
+          Cancel
+        </button>
+      </div>
+    </form>
+
+    <div *ngIf="createError" class="error-alert">
+      {{ createError }}
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading your accounts...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-alert">
+    <strong>Error:</strong> {{ error }}
+    <button class="btn btn-small" (click)="loadAccounts()">Retry</button>
+  </div>
+
+  <!-- Accounts Grid -->
+  <div *ngIf="!loading && accounts && accounts.length > 0" class="accounts-grid">
+    <div *ngFor="let account of filteredAccounts()" class="account-card" (click)="selectAccount(account)">
+      <div class="card-header">
+        <div class="account-icon">{{ getAccountIcon(account.account_type) }}</div>
+        <div class="card-title-section">
+          <h3 class="account-type-label">{{ account.account_type }}</h3>
+          <p class="account-number">{{ maskAccountNumber(account.account_number) }}</p>
+        </div>
+        <button class="btn-menu" (click)="toggleMenu($event, account)" title="More options">⋮</button>
+      </div>
+
+      <div class="card-body">
+        <div class="balance-section">
+          <p class="balance-label">Current Balance</p>
+          <h2 class="balance-amount">{{ account.balance | currency }}</h2>
+        </div>
+
+        <div class="account-details">
+          <div class="detail-item">
+            <span class="detail-label">Account ID</span>
+            <span class="detail-value">{{ account.id }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Status</span>
+            <span class="detail-value status-badge">Active</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <div style="display:flex;gap:0.5rem;">
+          <button class="btn btn-sm btn-outline" (click)="viewAccountDetails(account, $event)">
+            View Details
+          </button>
+          <button class="btn btn-sm" (click)="viewTransactions(account, $event)">Transactions</button>
+          <button class="btn btn-sm" (click)="editAccount(account)">Edit</button>
+          <button class="btn btn-sm btn-outline delete" (click)="deleteAccount(account, $event)">Delete</button>
+        </div>
+      </div>
+
+      <!-- Account Menu -->
+      <div *ngIf="activeMenu === account.id" class="account-menu" (click)="$event.stopPropagation()">
+        <button class="menu-item" (click)="viewAccountDetails(account, $event)">
+          <span class="menu-icon">👁️</span> View Details
+        </button>
+        <button class="menu-item" (click)="editAccount(account)">
+          <span class="menu-icon">✏️</span> Edit
+        </button>
+        <button class="menu-item delete" (click)="deleteAccount(account, $event)">
+          <span class="menu-icon">🗑️</span> Delete
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && (!accounts || accounts.length === 0) && !error" class="empty-state">
+    <div class="empty-icon">💳</div>
+    <h3>No Accounts Yet</h3>
+    <p>Create your first account to get started</p>
+    <button class="btn btn-primary" (click)="openCreateForm()">
+      Create First Account
+    </button>
+  </div>
+
+  <!-- Account Details Modal -->
+  <div *ngIf="selectedAccount" class="modal-overlay" (click)="selectedAccount = null">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Account Details</h2>
+        <button class="btn-close" (click)="selectedAccount = null">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="detail-section">
+          <h4>Account Information</h4>
+          <div class="detail-row">
+            <span class="label">Account Number</span>
+            <span class="value">{{ selectedAccount.account_number }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Account Type</span>
+            <span class="value">{{ selectedAccount.account_type }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Balance</span>
+            <span class="value highlight">{{ selectedAccount.balance | currency }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Account ID</span>
+            <span class="value">{{ selectedAccount.id }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="selectedAccount = null">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Account Modal -->
+  <div *ngIf="showEditForm && editAccountData" class="modal-overlay" (click)="showEditForm = false">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Edit Account</h2>
+        <button class="btn-close" (click)="showEditForm = false">×</button>
+      </div>
+      <div class="modal-body">
+        <form #editForm="ngForm" (ngSubmit)="saveEditAccount(editForm)">
+          <div class="form-group">
+            <label>Account Type</label>
+            <select name="account_type" [(ngModel)]="editAccountData.account_type">
+              <option *ngFor="let t of accountTypes" [value]="t">{{ t }}</option>
+            </select>
+          </div>
+          <div *ngIf="editError" class="error-alert">{{ editError }}</div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-success" [disabled]="editing">{{ editing ? 'Saving...' : 'Save' }}</button>
+            <button type="button" class="btn btn-secondary" (click)="showEditForm = false">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

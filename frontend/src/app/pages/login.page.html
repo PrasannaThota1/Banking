@@ -1,0 +1,36 @@
+<div class="auth-page">
+  <div class="card auth-card">
+    <h2>Sign in</h2>
+    <p class="muted">Sign in to your account to continue</p>
+    <form #f="ngForm" (ngSubmit)="onSubmit(f)">
+      <div class="form-row">
+        <label>Email</label>
+        <input name="email" [(ngModel)]="email" type="email" required email #emailCtrl="ngModel" />
+        <div *ngIf="emailCtrl.invalid && emailCtrl.touched" class="error-text">
+          <div *ngIf="emailCtrl.errors?.['required']">Email is required.</div>
+          <div *ngIf="emailCtrl.errors?.['email']">Enter a valid email.</div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label>Password</label>
+        <input name="password" [(ngModel)]="password" type="password" required minlength="6" #pwCtrl="ngModel" />
+        <div *ngIf="pwCtrl.invalid && pwCtrl.touched" class="error-text">
+          <div *ngIf="pwCtrl.errors?.['required']">Password is required.</div>
+          <div *ngIf="pwCtrl.errors?.['minlength']">Password must be at least 6 characters.</div>
+        </div>
+      </div>
+
+      <div class="form-row checkbox">
+        <input type="checkbox" name="remember" [(ngModel)]="remember" id="remember" />
+        <label for="remember">Remember me</label>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn" [disabled]="f.invalid" type="submit">Sign in</button>
+        <a routerLink="/register">Create account</a>
+      </div>
+    </form>
+    <div class="auth-footer muted">By signing in you agree to the app terms.</div>
+  </div>
+</div>

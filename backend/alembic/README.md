@@ -1,0 +1,1 @@
+Alembic migrations placeholder.\nRun `alembic init alembic` and configure `env.py` to use `app.database.session.engine`.\n

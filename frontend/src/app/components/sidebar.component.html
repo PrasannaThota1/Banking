@@ -1,0 +1,25 @@
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <h3 class="app-title">Banking App</h3>
+    <p class="welcome-text" *ngIf="currentUser">Welcome, {{ currentUser?.name }}</p>
+  </div>
+
+  <nav class="nav">
+    <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">
+      <span class="nav-icon">📊</span>
+      <span class="nav-label">Dashboard</span>
+    </a>
+    <a routerLink="/accounts" routerLinkActive="active" class="nav-link">
+      <span class="nav-icon">💳</span>
+      <span class="nav-label">Accounts</span>
+    </a>
+    <a routerLink="/transactions" routerLinkActive="active" class="nav-link">
+      <span class="nav-icon">💰</span>
+      <span class="nav-label">Transactions</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="footer-text">Banking App v1.0</div>
+  </div>
+</aside>

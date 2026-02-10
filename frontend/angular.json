@@ -1,0 +1,35 @@
+{
+  "$schema": "https://angular.io/schema/angular-cli",
+  "version": 1,
+  "projects": {
+    "banking-frontend-skeleton": {
+      "projectType": "application",
+      "root": "",
+      "sourceRoot": "src",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/banking-frontend-skeleton",
+            "index": "src/index.html",
+            "main": "src/main.ts",
+            "polyfills": "src/polyfills.ts",
+            "tsConfig": "tsconfig.json",
+            "assets": ["src/assets"],
+            "styles": ["src/styles.css"]
+          }
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+              "buildTarget": "banking-frontend-skeleton:build"
+          }
+        }
+      }
+    }
+  },
+  "defaultProject": "banking-frontend-skeleton",
+  "cli": {
+    "analytics": "4352f07d-ceb8-439e-8c12-570a2495f5b7"
+  }
+}

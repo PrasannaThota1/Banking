@@ -1,0 +1,46 @@
+.auth-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 1rem;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+}
+
+.auth-card h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.8rem;
+}
+
+.auth-card > p {
+  margin: 0 0 1.5rem 0;
+  color: #9aa6bb;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 !important;
+}
+
+.checkbox input {
+  width: auto;
+  margin: 0;
+}
+
+.checkbox label {
+  font-size: 0.9rem;
+  margin: 0;
+  font-weight: 400;
+}
+
+.auth-footer {
+  text-align: center;
+  font-size: 0.85rem;
+  margin-top: 1rem;
+}

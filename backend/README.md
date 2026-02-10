@@ -1,0 +1,1 @@
+# Banking App Backend\n\nFastAPI backend scaffold for the banking application.\n\nSee `requirements.txt` for dependencies. Configure database via environment variable `DATABASE_URL`.\n

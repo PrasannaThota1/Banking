@@ -1,0 +1,45 @@
+<div class="auth-page">
+  <div class="card auth-card">
+    <h2>Create account</h2>
+    <p class="muted">Create a free account to get started.</p>
+    <form #f="ngForm" (ngSubmit)="onSubmit(f)">
+      <div class="form-row">
+        <label>Name</label>
+        <input name="name" [(ngModel)]="name" required #nameCtrl="ngModel" />
+        <div *ngIf="nameCtrl.invalid && nameCtrl.touched" class="error-text">Name is required.</div>
+      </div>
+
+      <div class="form-row">
+        <label>Email</label>
+        <input name="email" [(ngModel)]="email" type="email" required email #emailCtrl="ngModel" />
+        <div *ngIf="emailCtrl.invalid && emailCtrl.touched" class="error-text">
+          <div *ngIf="emailCtrl.errors?.['required']">Email is required.</div>
+          <div *ngIf="emailCtrl.errors?.['email']">Enter a valid email.</div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label>Phone (Optional)</label>
+        <input name="phone" [(ngModel)]="phone" type="tel" #phoneCtrl="ngModel" />
+        <div *ngIf="phoneCtrl.invalid && phoneCtrl.touched" class="error-text">
+          Invalid phone number.
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label>Password</label>
+        <input name="password" [(ngModel)]="password" type="password" required minlength="6" #pwCtrl="ngModel" />
+        <div *ngIf="pwCtrl.invalid && pwCtrl.touched" class="error-text">
+          <div *ngIf="pwCtrl.errors?.['required']">Password is required.</div>
+          <div *ngIf="pwCtrl.errors?.['minlength']">Password must be at least 6 characters.</div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn" [disabled]="f.invalid" type="submit">Register</button>
+        <a routerLink="/login">Sign in</a>
+      </div>
+    </form>
+    <div class="auth-footer muted">We will never share your information.</div>
+  </div>
+</div>

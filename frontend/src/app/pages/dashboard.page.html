@@ -1,0 +1,40 @@
+<div>
+  <div class="card mb-4">
+    <div class="overview-header">
+      <div>
+        <h3>Overview</h3>
+        <div class="muted">Year-to-date</div>
+      </div>
+    </div>
+    <canvas id="overviewChart" class="overview-chart"></canvas>
+  </div>
+
+  <div class="stats-grid">
+    <div class="card">
+      <div class="stat-label">Total Balance</div>
+      <strong class="accent stat-value">{{ (summary?.total_balance || 0) | number:'1.2-2' }}</strong>
+    </div>
+    <div class="card">
+      <div class="stat-label">Accounts</div>
+      <strong class="accent stat-value">{{ summary?.account_count || 0 }}</strong>
+    </div>
+    <div class="card">
+      <div class="stat-label">Recent Transactions</div>
+      <strong class="accent stat-value">{{ summary?.recent_transactions || 0 }}</strong>
+    </div>
+  </div>
+
+  <div class="card">
+    <h4>Your Accounts</h4>
+    <div *ngIf="!summary?.accounts || summary.accounts.length === 0" class="muted empty-state">
+      No accounts yet. <a routerLink="/accounts" class="accent-link">Create one</a>
+    </div>
+    <div *ngFor="let account of summary?.accounts" class="account-item">
+      <div>
+        <div class="muted account-type">{{ account.account_type }}</div>
+        <strong>{{ account.account_number }}</strong>
+      </div>
+      <strong class="account-balance">{{ account.balance | number:'1.2-2' }}</strong>
+    </div>
+  </div>
+</div>
