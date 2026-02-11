@@ -61,8 +61,8 @@ async def get_current_user(
         raise HTTPException(status_code=401, detail="User not found")
     return user
 
-async def require_role(required_role: str):
-    async def check_role(user = Depends(get_current_user)):
+def require_role(required_role: str):
+    def check_role(user = Depends(get_current_user)):
         if user.role != required_role and user.role != "ADMIN":
             raise HTTPException(status_code=403, detail="Insufficient permissions")
         return user

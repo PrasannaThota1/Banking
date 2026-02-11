@@ -37,4 +37,21 @@
       <strong class="account-balance">{{ account.balance | number:'1.2-2' }}</strong>
     </div>
   </div>
+
+  <!-- Admin: Pending account requests -->
+  <div *ngIf="isAdmin" class="card">
+    <h4>Pending Account Requests</h4>
+    <div *ngIf="!pendingRequests || pendingRequests.length === 0" class="muted">No pending requests</div>
+    <div *ngFor="let r of pendingRequests" class="request-item">
+      <div>
+        <div class="muted">User ID: {{ r.user_id }}</div>
+        <strong>{{ r.account_type }} - {{ r.branch || 'Any branch' }}</strong>
+        <div class="muted">Initial Deposit: {{ r.initial_deposit }}</div>
+      </div>
+      <div style="display:flex;gap:0.5rem;">
+        <button class="btn btn-sm" (click)="approve(r.id)">Approve</button>
+        <button class="btn btn-sm btn-outline" (click)="reject(r.id)">Reject</button>
+      </div>
+    </div>
+  </div>
 </div>

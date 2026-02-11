@@ -11,11 +11,16 @@ export const API_CONFIG = {
     users: {
       profile: '/users/profile',
       updateProfile: '/users/profile',
+      list: '/users/admin/list',
     },
     accounts: {
       create: '/accounts/create',
       myAccounts: '/accounts/my-accounts',
       getAccount: '/accounts',
+      requests: '/accounts/requests',
+      approveRequest: '/accounts/requests',
+      rejectRequest: '/accounts/requests',
+      adminCreate: '/accounts/admin/create'
     },
     transactions: {
       deposit: '/transactions/deposit',

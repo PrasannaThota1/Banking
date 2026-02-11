@@ -1,0 +1,18 @@
+<div class="card">
+  <h3>Admin - Users</h3>
+  <div *ngIf="loading">Loading users...</div>
+  <div *ngIf="error" class="error-alert">{{ error }}</div>
+  <div *ngIf="!loading && users.length === 0" class="muted">No users found</div>
+
+  <div *ngFor="let u of users" class="user-row">
+    <div style="flex:1">
+      <div><strong>{{ u.name }}</strong> ({{ u.email }})</div>
+      <div class="muted">ID: {{ u.id }} • Role: {{ u.role }} • KYC: {{ u.kyc_status || 'PENDING' }}</div>
+    </div>
+    <div style="display:flex;gap:0.5rem;">
+      <button class="btn" (click)="setKyc(u.id, 'VERIFIED')">Mark Verified</button>
+      <button class="btn btn-outline" (click)="setKyc(u.id, 'REJECTED')">Reject</button>
+      <button class="btn btn-secondary" (click)="setKyc(u.id, 'PENDING')">Set Pending</button>
+    </div>
+  </div>
+</div>

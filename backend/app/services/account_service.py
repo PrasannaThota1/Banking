@@ -4,19 +4,87 @@ from sqlalchemy import func
 from decimal import Decimal
 from app.models.account import Account
 from app.models.transaction import Transaction
+from app.models.account_request import AccountRequest
 from app.schemas.account import AccountCreate
 from app.schemas.transaction import TransactionCreate
 import uuid
 
 class AccountService:
     @staticmethod
-    def create_account(db: Session, user_id: int, payload: AccountCreate):
+    def create_account(db: Session, user_id: int, payload):
         acc_number = f"ACC{str(uuid.uuid4())[:12].upper()}"
-        new = Account(user_id=user_id, account_number=acc_number, account_type=payload.account_type, balance=Decimal('0.00'))
+        # allow creating active accounts (admin) or typical accounts with zero balance
+        balance = Decimal(str(getattr(payload, 'initial_deposit', 0) or 0))
+        status = getattr(payload, 'status', 'ACTIVE')
+        branch = getattr(payload, 'branch', None)
+        # simple IFSC generator
+        ifsc = f"IFSC{str(uuid.uuid4())[:7].upper()}"
+        new = Account(user_id=user_id, account_number=acc_number, account_type=payload.account_type, balance=balance, status=status, branch=branch, ifsc=ifsc)
         db.add(new)
         db.commit()
         db.refresh(new)
         return new
+
+    @staticmethod
+    def create_account_request(db: Session, user_id: int, payload: AccountCreate):
+        # check duplicate pending
+        existing = db.query(AccountRequest).filter(AccountRequest.user_id == user_id, AccountRequest.status == 'PENDING_APPROVAL').first()
+        if existing:
+            raise Exception('There is already a pending account request')
+        req = AccountRequest(user_id=user_id, account_type=payload.account_type, branch=getattr(payload, 'branch', None), initial_deposit=Decimal(str(getattr(payload, 'initial_deposit', 0) or 0)))
+        db.add(req)
+        db.commit()
+        db.refresh(req)
+        return req
+
+    @staticmethod
+    def get_pending_requests(db: Session):
+        return db.query(AccountRequest).filter(AccountRequest.status == 'PENDING_APPROVAL').all()
+
+    @staticmethod
+    def get_request(db: Session, request_id: int):
+        return db.get(AccountRequest, request_id)
+
+    @staticmethod
+    def approve_request(db: Session, request_id: int, admin_user_id: int):
+        req = db.get(AccountRequest, request_id)
+        if not req:
+            raise Exception('Request not found')
+        if getattr(req, 'status', None) != 'PENDING_APPROVAL':
+            raise Exception('Request is not pending')
+        # create account with initial deposit
+        from types import SimpleNamespace
+        payload = SimpleNamespace(account_type=getattr(req,'account_type',None), initial_deposit=float(getattr(req,'initial_deposit',0) or 0), branch=getattr(req,'branch',None))
+        acc = AccountService.create_account(db, int(getattr(req,'user_id')), payload)
+        # if initial deposit > 0 create transaction
+        if Decimal(str(getattr(req,'initial_deposit',0))) > Decimal('0'):
+            tx = Transaction(from_account=None, to_account=acc.account_number, amount=Decimal(str(getattr(req,'initial_deposit',0))), transaction_type='CREDIT', status='COMPLETED')
+            db.add(tx)
+        req.status = 'ACTIVE'
+        db.add(req)
+        db.commit()
+        db.refresh(acc)
+        return acc
+
+    @staticmethod
+    def reject_request(db: Session, request_id: int, reason: str, admin_user_id: int):
+        req = db.get(AccountRequest, request_id)
+        if not req:
+            raise Exception('Request not found')
+        if getattr(req, 'status', None) != 'PENDING_APPROVAL':
+            raise Exception('Request is not pending')
+        req.status = 'REJECTED'
+        req.reason = reason
+        db.add(req)
+        db.commit()
+        return req
+
+    @staticmethod
+    def admin_create_account(db: Session, user_id: int, payload: dict):
+        # payload is expected to have account_type, initial_deposit, branch
+        from types import SimpleNamespace
+        p = SimpleNamespace(**payload)
+        return AccountService.create_account(db, user_id, p)
 
     @staticmethod
     def get_user_accounts(db: Session, user_id: int):

@@ -48,6 +48,16 @@ export class AuthService {
     return this.http.put(`${this.apiUrl}${API_CONFIG.endpoints.users.updateProfile}`, data);
   }
 
+  // Admin: set KYC status for a user
+  setKycStatus(userId: number, status: string) {
+    return this.http.post(`${this.apiUrl}/users/admin/users/${userId}/kyc`, { status });
+  }
+
+  // Admin: list users
+  listUsers() {
+    return this.http.get(`${this.apiUrl}${API_CONFIG.endpoints.users.list}`);
+  }
+
   isLoggedIn() {
     return !!localStorage.getItem('user');
   }

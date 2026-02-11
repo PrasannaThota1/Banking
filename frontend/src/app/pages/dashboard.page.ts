@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Chart, registerables } from 'chart.js';
 import { AccountService } from '../services/account.service';
+import { AuthService } from '../services/auth.service';
 import { TransactionService } from '../services/transaction.service';
 
 Chart.register(...registerables);
@@ -19,10 +20,13 @@ export class DashboardPage implements OnInit {
   summary: any = null;
   loading = true;
   error: string | null = null;
+  isAdmin = false;
+  pendingRequests: any[] = [];
 
   constructor(
     private accountService: AccountService,
     private transactionService: TransactionService
+    , private authService: AuthService
   ) {}
 
   ngOnInit() {
@@ -30,6 +34,7 @@ export class DashboardPage implements OnInit {
   }
 
   loadDashboard() {
+    this.isAdmin = this.authService.getCurrentUser()?.role === 'ADMIN';
     this.accountService.getAccountsList().subscribe({
       next: (accounts: any) => {
         // Calculate dashboard summary from accounts
@@ -53,6 +58,13 @@ export class DashboardPage implements OnInit {
             this.renderChart();
           }
         });
+
+        if (this.isAdmin) {
+          this.accountService.listRequests().subscribe({
+            next: (reqs: any) => this.pendingRequests = reqs || [],
+            error: (e) => console.error('Failed to load pending requests', e)
+          });
+        }
       },
       error: (err) => {
         this.error = 'Failed to load dashboard';
@@ -85,5 +97,27 @@ export class DashboardPage implements OnInit {
         }
       });
     }, 100);
+  }
+
+  approve(requestId: number) {
+    if (!confirm('Approve this account request?')) return;
+    this.accountService.approveRequest(requestId).subscribe({
+      next: () => {
+        this.pendingRequests = this.pendingRequests.filter(r => r.id !== requestId);
+        alert('Request approved and account created');
+      },
+      error: (e) => { console.error(e); alert('Failed to approve request'); }
+    });
+  }
+
+  reject(requestId: number) {
+    const reason = prompt('Reason for rejection') || 'Rejected by admin';
+    this.accountService.rejectRequest(requestId, reason).subscribe({
+      next: () => {
+        this.pendingRequests = this.pendingRequests.filter(r => r.id !== requestId);
+        alert('Request rejected');
+      },
+      error: (e) => { console.error(e); alert('Failed to reject request'); }
+    });
   }
 }

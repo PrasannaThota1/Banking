@@ -6,6 +6,7 @@ import { DashboardPage } from './pages/dashboard.page';
 import { LoginPage } from './pages/login.page';
 import { RegisterPage } from './pages/register.page';
 import { AuthGuard } from './core/auth.guard';
+import { AdminUsersPage } from './pages/admin-users.page';
 
 export const routes: Routes = [
   { path: '', component: HomePage },
@@ -13,5 +14,6 @@ export const routes: Routes = [
   { path: 'register', component: RegisterPage },
   { path: 'dashboard', component: DashboardPage, canActivate: [AuthGuard] },
   { path: 'accounts', component: AccountsPage, canActivate: [AuthGuard] },
+  { path: 'admin/users', component: AdminUsersPage, canActivate: [AuthGuard] },
   { path: 'transactions', component: TransactionsPage, canActivate: [AuthGuard] }
 ];

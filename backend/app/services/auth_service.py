@@ -11,11 +11,15 @@ class AuthService:
         if user:
             raise Exception('User already exists')
         new = User(
-            name=payload.name, 
-            email=payload.email, 
-            phone=payload.phone, 
+            name=payload.name,
+            email=payload.email,
+            phone=payload.phone,
+            address=getattr(payload, 'address', None),
+            dob=getattr(payload, 'dob', None),
+            government_id=getattr(payload, 'government_id', None),
             password_hash=get_password_hash(payload.password),
-            role="USER"
+            role="USER",
+            kyc_status="PENDING"
         )
         db.add(new)
         db.commit()
@@ -61,3 +65,18 @@ class AuthService:
         db.commit()
         db.refresh(user)
         return user
+
+    @staticmethod
+    def set_kyc_status(db: Session, user_id: int, status: str):
+        user = db.get(User, user_id)
+        if not user:
+            raise Exception('User not found')
+        user.kyc_status = status  # type: ignore
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+        return user
+
+    @staticmethod
+    def get_all_users(db: Session):
+        return db.query(User).all()

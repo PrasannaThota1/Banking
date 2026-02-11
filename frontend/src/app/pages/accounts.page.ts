@@ -29,7 +29,7 @@ export class AccountsPage implements OnInit {
   searchTerm: string = '';
 
   accountTypes = ['CHECKING', 'SAVINGS', 'CREDIT'];
-  newAccount = { account_type: 'CHECKING' };
+  newAccount: any = { account_type: 'CHECKING', branch: '', initial_deposit: 0 };
 
   constructor(private accountService: AccountService, private router: Router) {}
 
@@ -70,7 +70,9 @@ export class AccountsPage implements OnInit {
     this.creating = true;
     this.createError = null;
 
-    this.accountService.createAccount({ account_type: this.newAccount.account_type }).subscribe({
+    // send branch and initial deposit as part of account request
+    const payload = { account_type: this.newAccount.account_type, branch: this.newAccount.branch, initial_deposit: this.newAccount.initial_deposit };
+    this.accountService.createAccountRequest(payload).subscribe({
       next: () => {
         this.creating = false;
         this.closeCreateForm();

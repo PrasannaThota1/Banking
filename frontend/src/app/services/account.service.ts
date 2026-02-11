@@ -12,6 +12,26 @@ export class AccountService {
     return this.http.post(`${this.apiUrl}${API_CONFIG.endpoints.accounts.create}`, payload);
   }
 
+  createAccountRequest(payload: any) {
+    return this.http.post(`${this.apiUrl}${API_CONFIG.endpoints.accounts.create}`, payload);
+  }
+
+  listRequests() {
+    return this.http.get(`${this.apiUrl}${API_CONFIG.endpoints.accounts.requests}`);
+  }
+
+  approveRequest(requestId: number) {
+    return this.http.post(`${this.apiUrl}${API_CONFIG.endpoints.accounts.approveRequest}/${requestId}/approve`, {});
+  }
+
+  rejectRequest(requestId: number, reason: string) {
+    return this.http.post(`${this.apiUrl}${API_CONFIG.endpoints.accounts.rejectRequest}/${requestId}/reject`, { reason });
+  }
+
+  adminCreateAccount(payload: any) {
+    return this.http.post(`${this.apiUrl}${API_CONFIG.endpoints.accounts.adminCreate}`, payload);
+  }
+
   listAccounts() {
     return this.http.get(`${this.apiUrl}${API_CONFIG.endpoints.accounts.myAccounts}`);
   }
