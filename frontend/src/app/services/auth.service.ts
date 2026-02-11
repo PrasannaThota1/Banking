@@ -16,9 +16,15 @@ export class AuthService {
   login(data: any) {
     return this.http.post(`${this.apiUrl}${API_CONFIG.endpoints.auth.login}`, data).pipe(
       tap((response: any) => {
-        // Store user info in localStorage if provided
+        // Store user info and tokens in localStorage if provided
         if (response.user) {
           localStorage.setItem('user', JSON.stringify(response.user));
+        }
+        if (response.access_token) {
+          localStorage.setItem('access_token', response.access_token);
+        }
+        if (response.refresh_token) {
+          localStorage.setItem('refresh_token', response.refresh_token);
         }
       })
     );
@@ -28,6 +34,8 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}${API_CONFIG.endpoints.auth.logout}`, {}).pipe(
       tap(() => {
         localStorage.removeItem('user');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
       })
     );
   }

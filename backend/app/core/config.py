@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "mysql+pymysql://root:root@localhost:3306/banking_db"
     COOKIE_DOMAIN: str | None = None
     COOKIE_PATH: str = "/"
-    COOKIE_SAMESITE: Literal['lax', 'strict', 'none'] = "lax"
+    COOKIE_SAMESITE: Literal['lax', 'strict', 'none'] = "none"
 
     class Config:
         env_file = ".env"

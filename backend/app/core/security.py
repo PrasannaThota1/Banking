@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from jose import jwt, JWTError
 from passlib.context import CryptContext
-from fastapi import Depends, HTTPException, Cookie
+from fastapi import Depends, HTTPException, Cookie, Header
 from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.database.session import get_db
@@ -32,9 +32,25 @@ def decode_token(token: str):
     except JWTError:
         return None
 
-async def get_current_user(access_token: str = Cookie(...), db: Session = Depends(get_db)):
-    payload = decode_token(access_token)
+async def get_current_user(
+    access_token: str | None = Cookie(None),
+    authorization: str | None = Header(None),
+    db: Session = Depends(get_db)
+):
+    token = access_token
+    # Fallback to Authorization header if cookie not present
+    if not token and authorization:
+        if authorization.startswith("Bearer "):
+            token = authorization.split(" ", 1)[1]
+
+    if not token:
+        # Debug: no token received from Cookie or Authorization header
+        print("DEBUG get_current_user: no token provided. Cookie access_token:", access_token, "Authorization header:", authorization)
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    payload = decode_token(token)
     if not payload:
+        print("DEBUG get_current_user: token decode failed for token:", token)
         raise HTTPException(status_code=401, detail="Invalid token")
     user_id = payload.get("sub")
     if not user_id:
